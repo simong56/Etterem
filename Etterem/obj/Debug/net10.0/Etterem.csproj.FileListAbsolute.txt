@@ -50,3 +50,4 @@
 /home/gabor/RiderProjects/Etterem/Etterem/obj/Debug/net10.0/Etterem.pdb
 /home/gabor/RiderProjects/Etterem/Etterem/obj/Debug/net10.0/Etterem.genruntimeconfig.cache
 /home/gabor/RiderProjects/Etterem/Etterem/obj/Debug/net10.0/ref/Etterem.dll
+/home/gabor/RiderProjects/Etterem/Etterem/obj/Debug/net10.0/Etterem.sourcelink.json
