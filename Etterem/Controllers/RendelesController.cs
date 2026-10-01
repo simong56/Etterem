@@ -19,8 +19,8 @@ namespace Etterem.Controllers
             string sql = "SELECT * FROM rendeles";
             using var connection = new MySqlConnection(ConnectionString);
             connection.Open();
-            var cmd = new MySqlCommand(sql, connection);
-            var reader = cmd.ExecuteReader();
+            using var cmd = new MySqlCommand(sql, connection);
+            using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
                 orders.Add(new Rendeles(reader.GetInt32(0), reader.GetString(1), reader.GetString(2),
@@ -36,8 +36,8 @@ namespace Etterem.Controllers
             string sql = "SELECT * FROM rendeles WHERE id = " + id + "";
             using var connection = new MySqlConnection(ConnectionString);
             connection.Open();
-            var cmd = new MySqlCommand(sql, connection);
-            var reader = cmd.ExecuteReader();
+            using var cmd = new MySqlCommand(sql, connection);
+            using var reader = cmd.ExecuteReader();
             reader.Read();
             return new Rendeles(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetDateTime(3),
                 reader.GetDateTime(4), reader.GetInt32(5));
@@ -49,7 +49,7 @@ namespace Etterem.Controllers
             string sql = "INSERT INTO rendeles (dish, description, vendegId) VALUES (@dish, @description, @vendegId)";            
             using var connection = new MySqlConnection(ConnectionString);
             connection.Open();
-            var cmd = new MySqlCommand(sql, connection);
+            using var cmd = new MySqlCommand(sql, connection);
             cmd.Parameters.AddWithValue("@dish", order.Dish);
             cmd.Parameters.AddWithValue("@description", order.Description);
             cmd.Parameters.AddWithValue("@vendegId", order.VendegId);
@@ -65,7 +65,7 @@ namespace Etterem.Controllers
                 SET dish = COALESCE(@dish, dish),
                     description = COALESCE(@description, description),
                     orderTime = COALESCE(@orderTime, orderTime),
-                    updateTime = COALESCE(@updateTime, updateTime),
+                    updateTime = CURRENT_TIMESTAMP,
                     vendegId = COALESCE(@vendegId, vendegId)
                 WHERE id = @id
                 """;
@@ -76,7 +76,6 @@ namespace Etterem.Controllers
             cmd.Parameters.AddWithValue("@dish", (object?)order.Dish ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@description", (object?)order.Description ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@orderTime", (object?)order.OrderTime ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@updateTime", (object?)order.UpdateTime ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@vendegId", (object?)order.VendegId ?? DBNull.Value);
             cmd.ExecuteNonQuery();
             return order;
@@ -88,12 +87,24 @@ namespace Etterem.Controllers
             string sql = "DELETE FROM rendeles WHERE id = " + id;
             using var connection = new MySqlConnection(ConnectionString);
             connection.Open();
-            var cmd = new MySqlCommand(sql, connection);
+            using var cmd = new MySqlCommand(sql, connection);
             if (cmd.ExecuteNonQuery() > 0)
             {
                 return "success";
             }
             return "error";
+        }
+
+        [HttpGet("GetTotalOrderCount")]
+        public object GetTotalOrderCount()
+        {
+            string sql = "SELECT COUNT(*) FROM rendeles";
+            using var connection = new MySqlConnection(ConnectionString);
+            connection.Open();
+            using var cmd = new MySqlCommand(sql, connection);
+            using var reader = cmd.ExecuteReader();
+            reader.Read();
+            return reader.GetInt32(0);
         }
     }
 }
